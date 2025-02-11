@@ -72,7 +72,8 @@ document.getElementById('logout-btn').onclick = async () => {
 const loadNotes = async () => {
     try {
         notesList.innerHTML = '';
-        const snapshot = await db.collection('notes').get();
+        const user = auth.currentUser;
+        const snapshot = await db.collection('notes').where('uid', '==', user.uid).get();
         snapshot.forEach(doc => {
             const note = doc.data();
             const noteElement = createNoteElement(doc.id, note);
@@ -155,9 +156,11 @@ document.getElementById('add-note').onclick = async () => {
     }
 
     try {
+        const user = auth.currentUser;
         await db.collection('notes').add({
             title: title,
             content: content,
+            uid: user.uid,
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
         });
         resetNoteForm();
@@ -173,7 +176,8 @@ const loadTasks = async () => {
         activeTasks.innerHTML = '<h3>Active Tasks</h3>';
         completedTasks.innerHTML = '<h3>Completed Tasks</h3>';
         
-        const snapshot = await db.collection('tasks').get();
+        const user = auth.currentUser;
+        const snapshot = await db.collection('tasks').where('uid', '==', user.uid).get();
         snapshot.forEach(doc => {
             const task = doc.data();
             const taskElement = createTaskElement(doc.id, task);
@@ -272,12 +276,14 @@ document.getElementById('add-task').onclick = async () => {
     }
 
     try {
+        const user = auth.currentUser;
         await db.collection('tasks').add({
             title: title,
             description: description,
             priority: priority,
             category: category,
             completed: false,
+            uid: user.uid,
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
         });
         resetTaskForm();
